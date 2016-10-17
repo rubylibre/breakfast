@@ -11,16 +11,25 @@ module BrunchRails
       config.breakfast.css_reload_strategy = :hot
       config.breakfast.ruby_reload_strategy = :off
 
-      config.breakfast.asset_output_folders = [Rails.root.join("public")]
+      config.breakfast.asset_output_folder = Rails.root.join("public", "assets")
       config.breakfast.source_code_folders = [Rails.root.join("app")]
       config.breakfast.environments = %w(development)
       config.breakfast.status_bar_location = :bottom
+      config.breakfast.digest = !(Rails.env.development? || Rails.env.test?)
+
+      if config.breakfast.digest
+        config.breakfast.manifest = Breakfast::Manifest.new(base_dir: config.breakfast.asset_output_folder)
+      end
     end
 
     initializer "breakfast.setup_view_helpers" do |app|
       ActiveSupport.on_load(:action_view) do
         include ::Breakfast::ViewHelper
       end
+    end
+
+    rake_tasks do
+      load "tasks/breakfast.rake"
     end
 
     config.after_initialize do |app|
@@ -30,7 +39,7 @@ module BrunchRails
         end
 
         Breakfast::CompilationListener.start(
-          asset_output_folders: config.breakfast.asset_output_folders,
+          asset_output_folder: config.breakfast.asset_output_folder,
           source_code_folders: config.breakfast.source_code_folders
         )
       end

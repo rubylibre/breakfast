@@ -3,9 +3,9 @@ module Breakfast
     ASSET_EXTENSIONS = ["css", "js"].freeze
     SOURCE_CODE_EXTENSIONS = ["rb", "html", "haml", "slim"].freeze
 
-    def self.start(asset_output_folders:, source_code_folders:)
+    def self.start(asset_output_folder:, source_code_folders:)
       asset_listener = 
-        ::Listen.to(*asset_output_folders) do |modified, added, removed|
+        ::Listen.to(asset_output_folder) do |modified, added, removed|
           files = modified + added + removed
 
           ASSET_EXTENSIONS.each do |extension|

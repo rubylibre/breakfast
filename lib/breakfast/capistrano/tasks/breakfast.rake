@@ -4,12 +4,19 @@ namespace :breakfast do
     on roles fetch(:breakfast_roles) do |host|
       within release_path do
         execute fetch(:breakfast_npm_path).to_sym, "install"
-        execute "node_modules/brunch/bin/brunch", "build --production"
+        execute :rails, "breakfast:assets:build_production"
+        execute :rails, "breakfast:assets:digest"
       end
     end
   end
 
+  desc "Remove any unused assets"
+  task :clean do
+    execute :rails, "breakfast:assets:clean"
+  end
+
  after "deploy:updated", "breakfast:compile"
+ after "deploy:publish", "breakfast:clean"
 end
 
 
